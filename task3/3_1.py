@@ -66,23 +66,6 @@ def create_matrix(n):
     arr = np.array(arr)
     return arr
 
-def get_cond_num(n):
-    def m(arr):
-        norma_str = max(list([np.sum(abs(arr), axis=0)][0]))
-        return norma_str
-
-    def create_inverse_matirix(matrix):
-        return np.linalg.inv(matrix)
-
-    nu_m = np.empty(n)
-
-    for i in range(1, n + 1):
-        matrix = create_matrix(i)
-        inverse_matrix = create_inverse_matirix(matrix)
-        nu_m[i - 1] = m(matrix) * m(inverse_matrix)
-    
-    return nu_m
-
 n = int(input("n = "))
 
 A = create_matrix(n) 
@@ -90,12 +73,15 @@ f = np.array(n * [1])
 
 res = Solve(A, f)
 
-x = np.arange(1, n + 1)
-nu_m = get_cond_num (n)
+x = np.arange(3, n + 1)
+cond_nums = [0] * (n - 2)
 
-plt.plot(x, nu_m, color='red', marker='.')
+for i in range(3, n + 1):
+    cond_nums[i - 3] = np.linalg.cond(create_matrix(i))
+
+plt.plot(x, cond_nums, color='red', marker='.')
 plt.grid()
+plt.title(r'Зависимость числа обусловленности от размерности n')
 plt.xlabel('n')
 plt.ylabel('Число обусловленности')
-
 plt.show()
