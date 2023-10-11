@@ -1,54 +1,46 @@
 import numpy as np
-import math
 import matplotlib.pyplot as plt
+import math
 
-def f1(x, y):
-    return x**2 + y**2 - 1
+def solve_newton(x0, max_i=1000, eps=1e-6):
+    x = x0
+    i = 0
+    error = 2 * eps
 
-def f2(x, y):
-    return math.tan(x) - y
+    while (error > eps) and (i < max_i):
+        fx = system(x)
+        J = jacobi_matrix(x)
+        dx = np.linalg.solve(J, fx)
+        error = vec_norm(dx)
+        x = x - dx
+        i += 1
 
-def dichotomy_method(f1, f2, a, b, eps):
-    roots = []
-    for x in np.arange(a, b, 1):
-        for y in np.arange(a, b, 1):
-            x1, x2 = x, x + 1
-            y1, y2 = y, y + 1
+    return x
 
-            if f1(x1, y1) * f1(x1, y2) < 0:
-                root = dichotomy(f1, x1, x2, y1, y2, eps)
-                if root is not None:
-                    if abs(f2(root[0], root[1])) < eps:
-                        roots.append(root)
-            if f2(x1, y1) * f2(x2, y1) < 0:
-                root = dichotomy(f2, x1, x2, y1, y2, eps)
-                if root is not None:
-                    if abs(f1(root[0], root[1])) < eps:
-                        roots.append(root)
+def system(x):
+    return [x[0] ** 2 + x[1] ** 2 - 1, np.tan(x[0]) - x[1]]
 
-    return roots
+def jacobi_matrix(x):
+    J = [[2 * x[0], 2 * x[1]], [1 / np.cos(x[0]) ** 2, -1]]
+    return J
 
-def dichotomy(f, x1, x2, y1, y2, eps):
-    while abs(x2 - x1) > eps:
-        x = (x1 + x2) / 2
-        y = (y1 + y2) / 2
-        if abs(f(x1, y1) * f(x, y)) < 0:
-            x2, y2 = x, y
-        else:
-            x1, y1 = x, y
-        
-    x = (x1 + x2) / 2
-    y = (y1 + y2) / 2
-    if abs(f(x, y)) > eps:
-        return None
+def vec_norm(x):
+    return math.sqrt(sum([i ** 2 for i in x]))
 
-    return x, y
+# Основное тело
+x0 = [1, 1]
+x1 = [-1, -1]
 
-eps = 1e-6
-roots = dichotomy_method(f1, f2, -10, 10, eps)
-print("The roots of the system of functions are:", roots)
+root_1 = solve_newton(x0)
+root_2 = solve_newton(x1)
 
-x = [root[0] for root in roots]
-y = [root[1] for root in roots]
-plt.scatter(x, y)
+print("Root 1: {}".format(root_1))
+print("Root 2: {}".format(root_2))
+
+plt.scatter(root_1[0], root_1[1])
+plt.scatter(root_2[0], root_2[1])
+plt.title("Решение системы")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.grid(which='major', color='k', linewidth=0.3)
 plt.show()
