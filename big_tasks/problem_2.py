@@ -18,7 +18,7 @@ def create_matrix(n: int) -> np.array:
 
     return A
 
-def get_f(n: int) -> np.array:
+def create_f(n: int) -> np.array:
     f = np.zeros(n)
     for i in range(n):
         f[i] = (1.0 + n**2.0 * np.sin(np.pi / n) ** 2.0) * np.sin( (2.0 * np.pi * i) / np.float64(n))
@@ -26,13 +26,10 @@ def get_f(n: int) -> np.array:
     return f 
 
 def gershgorin_circles(a: np.array):
-    circles = []
     for i, row in enumerate(a):
         a_ii = a[i, i]
         r_i = np.abs(row).sum() - a_ii
         print(f"D({a_ii:5.3f}; {r_i:5.3f})")
-
-    return circles
 
 def LUP_decomposition(A):
     n = A.shape[0]
@@ -63,7 +60,7 @@ def LUP_solve(A: np.array, f: np.array):
 
     return x
 
-def get_eigvals_krylov(stpts: np.array, eps=1e-6):
+def get_eigvals_krylov(A):
     size = A.shape[0]
     y_matrix = np.zeros((size, size))
     y = np.ones(n)
@@ -111,41 +108,42 @@ def output_solve(A, f, tau, eps=1e-6):
     line, = plt.plot(num_errors, errors, marker='.')
     line.set_label(f"tau = {tau}")
 
-n = 6
-A = create_matrix(n)
-f = get_f(n)
+if __name__ == '__main__':
+    n = 6
+    A = create_matrix(n)
+    f = create_f(n)
 
-print("---------------------------------------------------")
-print("eigenvalue estimation using Gershgorin circles")
-gershgorin_circles(A)
-print("---------------------------------------------------")
+    print("---------------------------------------------------")
+    print("eigenvalue estimation using Gershgorin circles")
+    gershgorin_circles(A)
+    print("---------------------------------------------------")
 
-krylov_eigvals = get_eigvals_krylov([0.0, 1.0, 1.5, 3.0, 3.5, 4.5])
-krylov_eigvals.sort()
-numpy_eigvals = np.linalg.eigvals(A)
-numpy_eigvals.sort()
+    krylov_eigvals = get_eigvals_krylov(A)
+    krylov_eigvals.sort()
+    numpy_eigvals = np.linalg.eigvals(A)
+    numpy_eigvals.sort()
 
-print("---------------------------------------------------")
-print("eigenvals (krylov vs numpy)")
-for i in range (len(krylov_eigvals)):
-    l_k = krylov_eigvals[i]
-    l_n = numpy_eigvals[i]
-    print(f"lambda_{i}: {l_k:10.6f} vs {l_n:10.6f}; delta = {abs(l_n - l_k)}")
-print("---------------------------------------------------")
+    print("---------------------------------------------------")
+    print("eigenvals (krylov vs numpy)")
+    for i in range (len(krylov_eigvals)):
+        l_k = krylov_eigvals[i]
+        l_n = numpy_eigvals[i]
+        print(f"lambda_{i}: {l_k:10.6f} vs {l_n:10.6f}; delta = {abs(l_n - l_k)}")
+    print("---------------------------------------------------")
 
-tau_opt_krylov = 2.0 / (krylov_eigvals.min() + krylov_eigvals.max())
-tau_opt_numpy = 2.0 / (numpy_eigvals.min() + numpy_eigvals.max())
+    tau_opt_krylov = 2.0 / (krylov_eigvals.min() + krylov_eigvals.max())
+    tau_opt_numpy = 2.0 / (numpy_eigvals.min() + numpy_eigvals.max())
 
-print(f"tau_opt_numpy  = {tau_opt_numpy}")
-print(f"tau_opt_krylov = {tau_opt_krylov}")
+    print(f"tau_opt_numpy  = {tau_opt_numpy}")
+    print(f"tau_opt_krylov = {tau_opt_krylov}")
 
-output_solve(A, f, tau_opt_numpy)
-output_solve(A, f, tau_opt_krylov)
-output_solve(A, f, tau=0.4)
+    output_solve(A, f, tau_opt_numpy)
+    output_solve(A, f, tau_opt_krylov)
+    output_solve(A, f, tau=0.4)
 
-plt.yscale("log")
-plt.ylabel('mismatch rate')
-plt.xlabel('number of iterations')
-plt.grid()
-plt.legend()
-plt.show()
+    plt.yscale("log")
+    plt.ylabel('mismatch rate')
+    plt.xlabel('number of iterations')
+    plt.grid()
+    plt.legend()
+    plt.show()
