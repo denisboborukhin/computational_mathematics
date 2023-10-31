@@ -101,7 +101,7 @@ def output_solve(A, f, tau, eps=1e-6):
     print("---------------------------------------------------")
     print("solution")
     print(f"tau = {tau}; res = {solution}")
-    print(f"|numpy_sol - krylov_sol|_3 = {problem_1.m_3(delta)}")
+    print(f"|numpy_sol - sol|_3 = {problem_1.m_3(delta)}")
     print("---------------------------------------------------")
 
     num_errors = np.arange(len(errors))
@@ -140,6 +140,7 @@ if __name__ == '__main__':
     output_solve(A, f, tau_opt_numpy)
     output_solve(A, f, tau_opt_krylov)
     output_solve(A, f, tau=0.4)
+    output_solve(A, f, tau=0.5)
 
     plt.yscale("log")
     plt.ylabel('mismatch rate')
